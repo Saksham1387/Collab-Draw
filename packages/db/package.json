@@ -1,0 +1,14 @@
+{
+  "name": "db",
+  "module": ".",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "exports":{
+    "./prisma":"./src/index.ts"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
