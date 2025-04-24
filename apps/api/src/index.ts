@@ -4,10 +4,12 @@ import { middleware } from "./middleware";
 import { prisma } from "@repo/db/prisma";
 import { JWT_SECRET } from "common/config";
 import { CreateRoomSchema, CreateUserSchema, SigninSchema } from "common/types";
+import cors from "cors"
 
 const app = express();
 
 app.use(express.json());
+app.use(cors())
 
 app.post("/signup", async (req, res): Promise<void> => {
   const data = CreateUserSchema.safeParse(req.body);
@@ -67,7 +69,6 @@ app.post("/signin", async (req, res) => {
   });
 });
 
-
 app.post("/room", middleware, async (req, res) => {
   console.log("here")
   const parsedData = CreateRoomSchema.safeParse(req.body);
@@ -93,6 +94,18 @@ app.post("/room", middleware, async (req, res) => {
   });
   res.json({ room, message: "joined room" });
 });
+
+app.get("/room/:slug", async (req,res ) =>{
+  const slug = req.params.slug;
+
+  const room  = await prisma.room.findFirst({
+    where:{
+      slug
+    }
+  })
+
+  res.json({room})
+})
 
 app.get("/chats/:roomId", async (req,res) => {
   const roomId = Number(req.params.roomId);
