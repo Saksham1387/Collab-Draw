@@ -38,7 +38,6 @@ wss.on("connection", function connection(ws, request) {
     console.log(e);
   });
   ws.on("message", async function message(data) {
-    console.log("here");
     let parsedData;
     console.log(data);
     if (typeof data !== "string") {
@@ -67,11 +66,12 @@ wss.on("connection", function connection(ws, request) {
       const roomId = parsedData.roomId;
       const message = parsedData.message;
 
+      console.log("----here")
       // TODO: Use Queues here
       await prisma.chat.create({
         data: {
-          roomId,
-          message,
+          roomId:Number(roomId),
+          message:message.toString(),
           userId,
         },
       });

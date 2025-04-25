@@ -11,20 +11,38 @@ type Shape =
     }
   | {
       type: "circle";
-      x: number;
-      y: number;
-      width: number;
-      height: number;
+      radius: number;
+      centerX: number;
+      centerY: number;
     };
 
-export const initDraw = async (canvas: HTMLCanvasElement,roomId:string) => {
+export const initDraw = async (
+  canvas: HTMLCanvasElement,
+  roomId: string,
+  ws: WebSocket,
+  selectedShape: string
+) => {
+  console.log("fsdjfoisd", ws);
   const ctx = canvas.getContext("2d");
 
   let existingShape: Shape[] = await getExistingShapes(roomId);
 
+  console.log(existingShape);
   if (!ctx) {
     return;
   }
+
+  ws.onmessage = (event) => {
+    const message = JSON.parse(event.data);
+
+    console.log(message);
+    if (message.type == "chat") {
+      const parsedShape = JSON.parse(message.message);
+      console.log(parsedShape);
+      existingShape.push(message.message);
+      clearCanvas(canvas, existingShape, ctx);
+    }
+  };
 
   clearCanvas(canvas, existingShape, ctx);
 
@@ -44,13 +62,38 @@ export const initDraw = async (canvas: HTMLCanvasElement,roomId:string) => {
     const width = e.clientX - startX;
     const height = e.clientY - startY;
 
-    existingShape.push({
-      type: "rect",
-      x: startX,
-      y: startY,
-      width,
-      height,
-    });
+    let shape: Shape | null = null;
+    if (selectedShape === "rect") {
+      shape = {
+        type: "rect",
+        x: startX,
+        y: startY,
+        width,
+        height,
+      };
+    } else if (selectedShape === "circle") {
+      const radius = Math.max(width, height) / 2;
+      shape = {
+        type: "circle",
+        radius: radius,
+        centerX: startX + width / 2,
+        centerY: startY + height / 2,
+      };
+    }
+
+    if (!shape) {
+      return;
+    }
+
+    existingShape.push(shape);
+
+    ws.send(
+      JSON.stringify({
+        roomId,
+        type: "chat",
+        message: JSON.stringify(shape),
+      })
+    );
   });
 
   canvas.addEventListener("mousemove", (e) => {
@@ -59,7 +102,20 @@ export const initDraw = async (canvas: HTMLCanvasElement,roomId:string) => {
       const height = e.clientY - startY;
       clearCanvas(canvas, existingShape, ctx);
       ctx.strokeStyle = "rgba(255,255,255)";
-      ctx.strokeRect(startX, startY, width, height);
+
+      if (selectedShape == "rect") {
+        ctx.strokeRect(startX, startY, width, height);
+      }
+
+      if (selectedShape == "circle") {
+        const centerX = startX + width / 2;
+        const centerY = startY + height / 2;
+        const radius = Math.max(width, height) / 2;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+        ctx.stroke();
+        ctx.closePath();
+      }
     }
   });
 };
@@ -73,22 +129,30 @@ function clearCanvas(
   ctx.fillStyle = "rgba(0,0,0,)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  existingShape.map((shape) => {
-    if (shape.type == "rect") {
+  console.log(existingShape);
+  console.log("printing");
+  existingShape.forEach((shape) => {
+    console.log(shape);
+    if (shape.type === "rect") {
       ctx.strokeStyle = "rgba(255,255,255)";
       ctx.strokeRect(shape.x, shape.y, shape.width, shape.height);
+    } else if (shape.type === "circle") {
+      ctx.beginPath();
+      ctx.arc(shape.centerX, shape.centerY, shape.radius, 0, 2 * Math.PI);
+      ctx.stroke();
+      ctx.closePath();
     }
   });
 }
 
 async function getExistingShapes(roomId: string) {
+  console.log("getting existing shapes");
   const res = await axios.get(`${httpUrl}/chats/${roomId}`);
   const messages = res.data.chats;
-  // @ts-ignore
-  const shapes = messages.map((x) => {
-    const messageData = JSON.stringify(x.message);
+  const shapes = messages.map((x: { message: string }) => {
+    const messageData = JSON.parse(x.message);
     return messageData;
   });
 
-  return shapes
+  return shapes;
 }
