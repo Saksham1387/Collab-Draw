@@ -1,9 +1,6 @@
 "use client";
 import { useState } from "react";
-import Link from "next/link";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import {
@@ -16,96 +13,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import {
-  Pen,
-  Plus,
-  Search,
-  Clock,
-  Users,
-  Star,
-  MoreHorizontal,
-  Calendar,
-  ArrowUpRight,
-  Settings,
-  LogOut,
-} from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Clock, Pen, Plus } from "lucide-react";
 import { DashboardHeader } from "./dashboard-header";
 import { SummaryCardSection } from "./dashboard/summary-card-section";
-import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "./ui/card";
 import { DashboardFooter } from "./dashboard/footer";
-import { formatDate } from "@/lib/format-date";
-import { useRouter } from "next/navigation";
 import { RoomCard } from "./dashboard/room-card";
 import axios from "axios";
 import { httpUrl } from "@/lib/config";
 import { toast } from "sonner";
-
-// Mock data for rooms
-const mockRooms = [
-  {
-    id: "room-1",
-    name: "Product Wireframe",
-    lastEdited: "2 hours ago",
-    collaborators: 5,
-    thumbnail: "/placeholder.svg?height=200&width=300",
-    starred: true,
-  },
-  {
-    id: "room-2",
-    name: "Marketing Campaign Sketch",
-    lastEdited: "Yesterday",
-    collaborators: 3,
-    thumbnail: "/placeholder.svg?height=200&width=300",
-    starred: false,
-  },
-  {
-    id: "room-3",
-    name: "UI Design Elements",
-    lastEdited: "3 days ago",
-    collaborators: 2,
-    thumbnail: "/placeholder.svg?height=200&width=300",
-    starred: true,
-  },
-  {
-    id: "room-4",
-    name: "Team Brainstorming",
-    lastEdited: "1 week ago",
-    collaborators: 8,
-    thumbnail: "/placeholder.svg?height=200&width=300",
-    starred: false,
-  },
-  {
-    id: "room-5",
-    name: "Project Roadmap",
-    lastEdited: "2 weeks ago",
-    collaborators: 4,
-    thumbnail: "/placeholder.svg?height=200&width=300",
-    starred: false,
-  },
-  {
-    id: "room-6",
-    name: "Website Mockup",
-    lastEdited: "1 month ago",
-    collaborators: 2,
-    thumbnail: "/placeholder.svg?height=200&width=300",
-    starred: false,
-  },
-];
 
 export type Room = {
   id: number;
@@ -131,19 +46,11 @@ export default function Dashboard({
   const [rooms, setRooms] = useState(initalrooms);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [newRoomName, setNewRoomName] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
-  const router = useRouter();
-
-  const filteredRooms = rooms.filter((room) =>
-    room.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  // const starredRooms = filteredRooms.filter((room) => room.starred);
 
   const handleCreateRoom = async () => {
     if (!newRoomName.trim()) return;
 
-    console.log("before the call",rooms)
+    console.log("before the call", rooms);
     const res = await axios.post(
       `${httpUrl}/room`,
       {
@@ -154,16 +61,15 @@ export default function Dashboard({
       }
     );
 
-    console.log(res.data.room)
-    console.log([res.data.room, ...rooms])
+    console.log(res.data.room);
+    console.log([res.data.room, ...rooms]);
     if (res.status === 200) {
-      setRooms(prevRooms => {
+      setRooms((prevRooms) => {
         console.log("Adding new room to:", prevRooms);
         return [res.data.room, ...prevRooms];
       });
 
-    console.log("after the call",rooms)
-
+      console.log("after the call", rooms);
 
       toast("Room Created!");
       setNewRoomName("");
@@ -171,14 +77,6 @@ export default function Dashboard({
     } else {
       toast("Error in Creating room");
     }
-  };
-
-  const toggleStar = (roomId: any) => {
-    // setRooms(
-    //   rooms.map((room) =>
-    //     room.id === roomId ? { ...room, starred: !room.starred } : room
-    //   )
-    // );
   };
 
   return (
@@ -192,7 +90,7 @@ export default function Dashboard({
             onOpenChange={setIsCreateDialogOpen}
           >
             <DialogTrigger asChild>
-              <Button className="gap-2">
+              <Button className="gap-2 bg-blue-500 text-white hover:bg-blue-500/90">
                 <Plus className="h-4 w-4" />
                 New Room
               </Button>
@@ -222,7 +120,12 @@ export default function Dashboard({
                 >
                   Cancel
                 </Button>
-                <Button onClick={handleCreateRoom}>Create Room</Button>
+                <Button
+                  onClick={handleCreateRoom}
+                  className="bg-blue-500 text-white hover:bg-blue-500/90"
+                >
+                  Create Room
+                </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -237,7 +140,6 @@ export default function Dashboard({
           <TabsList className="mb-4">
             <TabsTrigger value="all">All Rooms</TabsTrigger>
             <TabsTrigger value="recent">Recent</TabsTrigger>
-            <TabsTrigger value="starred">Starred</TabsTrigger>
           </TabsList>
 
           <TabsContent value="all" className="space-y-4">
@@ -249,20 +151,14 @@ export default function Dashboard({
                 <h3 className="text-lg font-semibold mb-2">
                   No drawing rooms found
                 </h3>
-                <p className="text-muted-foreground mb-4">
-                  {searchQuery
-                    ? "Try a different search term"
-                    : "Create your first drawing room to get started"}
-                </p>
-                {!searchQuery && (
-                  <Button onClick={() => setIsCreateDialogOpen(true)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Create Room
-                  </Button>
-                )}
+
+                <Button onClick={() => setIsCreateDialogOpen(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Room
+                </Button>
               </div>
             ) : (
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 {rooms.map((room, index) => (
                   <RoomCard key={index} room={room} />
                 ))}
@@ -271,7 +167,7 @@ export default function Dashboard({
           </TabsContent>
 
           <TabsContent value="recent" className="space-y-4">
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {recentlyEditedRooms.length === 0 ? (
                 <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
                   <div className="rounded-full bg-muted p-3 mb-4">
@@ -281,7 +177,7 @@ export default function Dashboard({
                     No recent activity
                   </h3>
                   <p className="text-muted-foreground mb-4">
-                    You haven't worked on any drawing rooms recently
+                    You haven&apos;t worked on any drawing rooms recently
                   </p>
                 </div>
               ) : (

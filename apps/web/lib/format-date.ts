@@ -1,8 +1,7 @@
 export function formatDate(dateString: string) {
   const date = new Date(dateString);
 
-  // Format options
-  const options = {
+  const options: Intl.DateTimeFormatOptions = {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -10,5 +9,5 @@ export function formatDate(dateString: string) {
     minute: "2-digit",
   };
 
-  return date.toLocaleDateString("en-US", options);
+  return date.toLocaleString("en-US", options);
 }

@@ -1,12 +1,14 @@
+"use client"
 import { AuthForm } from "@/components/auth-form";
 import { useAuthServer } from "@/hooks/useAuthServer";
 import { Brush } from "lucide-react";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
-export default async function SignIn() {
-  const { isloggedIn } = await useAuthServer();
+export default function SignIn() {
+  const { isloggedIn } = useAuthServer();
+  const router = useRouter()
   if (isloggedIn) {
-    redirect("/dashboard");
+    router.push("/dashboard");
   }
   return (
     <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-muted p-6 md:p-10 dark:bg-black">

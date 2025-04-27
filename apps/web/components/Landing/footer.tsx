@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export const FooterSection = () => {
   return (
-    <footer className="bg-background w-full py-8">
+    <footer className="bg-background w-full py-8 border-t-2">
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between gap-8">
           {/* Essential links in a simplified layout */}
@@ -59,7 +59,7 @@ export const FooterSection = () => {
 
           {/* Logo and copyright */}
           <div className="flex items-center gap-2">
-            <Pen className="h-4 w-4" />
+            <Pen className="h-4 w-4 text-blue-500" />
             <span className="text-sm font-medium">Collab Draw</span>
             <span className="text-xs text-muted-foreground ml-2">
               © 2025

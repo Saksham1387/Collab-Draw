@@ -32,16 +32,23 @@ export function AuthForm({ className, isSignIn, ...props }: LoginFormProps) {
 
     onSubmit: async ({ value }) => {
       if (isSignIn) {
-        const res = await axios.post(`${httpUrl}/signin`, {
-          email: value.email,
-          password: value.password,
-        },{
-          withCredentials:true
-        });
+        const res = await axios.post(
+          `${httpUrl}/signin`,
+          {
+            email: value.email,
+            password: value.password,
+          },
+          {
+            withCredentials: true,
+          }
+        );
 
-        if (res.status === 200 && res.data.message !== "Incorrect Inputs" || res.data.message !== "Wrong password") {
+        if (
+          (res.status === 200 && res.data.message !== "Incorrect Inputs") ||
+          res.data.message !== "Wrong password"
+        ) {
           toast("Successfully SignedIn");
-          router.push("/dashboard")
+          router.push("/dashboard");
           return;
         }
 
@@ -49,13 +56,17 @@ export function AuthForm({ className, isSignIn, ...props }: LoginFormProps) {
         return;
       }
 
-      const res = await axios.post(`${httpUrl}/signup`, {
-        email: value.email,
-        password: value.password,
-        username: value.username,
-      },{
-        withCredentials:true
-      });
+      const res = await axios.post(
+        `${httpUrl}/signup`,
+        {
+          email: value.email,
+          password: value.password,
+          username: value.username,
+        },
+        {
+          withCredentials: true,
+        }
+      );
 
       if (res.status === 200) {
         toast("Successfully SignedUp");
@@ -83,78 +94,75 @@ export function AuthForm({ className, isSignIn, ...props }: LoginFormProps) {
           >
             <div className="grid gap-6">
               <div className="grid gap-6">
-                <form.Field
-                  name="email"
-                  children={(field) => {
-                    return (
+                <form.Field name="email">
+                  {(field) => (
+                    <div className="grid gap-2">
+                      <Label htmlFor={field.name}>{field.name}</Label>
+                      <Input
+                        id={field.name}
+                        type="email"
+                        value={field.state.value}
+                        placeholder="m@example.com"
+                        required
+                        onChange={(e) => field.handleChange(e.target.value)}
+                      />
+                    </div>
+                  )}
+                </form.Field>
+
+                {!isSignIn && (
+                  <form.Field name="username">
+                    {(field) => (
                       <div className="grid gap-2">
                         <Label htmlFor={field.name}>{field.name}</Label>
                         <Input
                           id={field.name}
-                          type="email"
+                          type="text"
                           value={field.state.value}
-                          placeholder="m@example.com"
+                          placeholder="John"
                           required
                           onChange={(e) => field.handleChange(e.target.value)}
                         />
                       </div>
-                    );
-                  }}
-                />
-
-                {!isSignIn && (
-                  <form.Field
-                    name="username"
-                    children={(field) => {
-                      return (
-                        <div className="grid gap-2">
-                          <Label htmlFor={field.name}>{field.name}</Label>
-                          <Input
-                            id={field.name}
-                            type="text"
-                            value={field.state.value}
-                            placeholder="John"
-                            required
-                            onChange={(e) => field.handleChange(e.target.value)}
-                          />
-                        </div>
-                      );
-                    }}
-                  />
+                    )}
+                  </form.Field>
                 )}
-                <form.Field
-                  name="password"
-                  children={(field) => {
-                    return (
-                      <div className="grid gap-2">
-                        <div className="flex items-center">
-                          <Label htmlFor={field.name}>{field.name}</Label>
-                          <a
-                            href="#"
-                            className="ml-auto text-sm underline-offset-4 hover:underline"
-                          >
-                            Forgot your password?
-                          </a>
-                        </div>
-                        <Input
-                          id="password"
-                          type="password"
-                          required
-                          onChange={(e) => field.handleChange(e.target.value)}
-                        />
+
+                <form.Field name="password">
+                  {(field) => (
+                    <div className="grid gap-2">
+                      <div className="flex items-center">
+                        <Label htmlFor={field.name}>{field.name}</Label>
+                        <a
+                          href="#"
+                          className="ml-auto text-sm underline-offset-4 hover:underline"
+                        >
+                          Forgot your password?
+                        </a>
                       </div>
-                    );
-                  }}
-                />
+                      <Input
+                        id="password"
+                        type="password"
+                        required
+                        onChange={(e) => field.handleChange(e.target.value)}
+                      />
+                    </div>
+                  )}
+                </form.Field>
 
                 <form.Subscribe
                   selector={(state) => [state.canSubmit, state.isSubmitting]}
-                  children={([canSubmit, isSubmitting]) => (
-                    <Button type="submit" className="w-full">
+                >
+                  {([canSubmit, isSubmitting]) => (
+                    <Button
+                      type="submit"
+                      className="w-full"
+                      disabled={!canSubmit}
+                    >
                       {isSubmitting ? "..." : isSignIn ? "SignIn" : "SignUp"}
                     </Button>
                   )}
-                />
+                </form.Subscribe>
               </div>
               <div className="text-center text-sm">
                 Don&apos;t have an account?{" "}

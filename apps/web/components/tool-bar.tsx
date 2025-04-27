@@ -1,20 +1,8 @@
 "use client";
-
 import { useState } from "react";
 import {
-  Lock,
-  Hand,
-  MousePointer,
   Square,
-  Diamond,
-  Circle,
-  ArrowRight,
-  Minus,
-  Pencil,
-  Type,
-  ImageIcon,
-  Palette,
-  Network,
+  Circle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 

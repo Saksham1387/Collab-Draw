@@ -1,23 +1,9 @@
 "use client";
-import { ArrowUpRight, Clock, MoreHorizontal } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { Room } from "@/components/dashboard";
-import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import Image from "next/image";
 import { Button } from "../ui/button";
 import { formatDate } from "@/lib/format-date";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
 
 interface RoomCardProps {
@@ -28,72 +14,37 @@ export const RoomCard = ({ room }: RoomCardProps) => {
   const router = useRouter();
 
   return (
-    <Card key={room.id} className="overflow-hidden">
-      <div className="relative aspect-video">
+    <div className="w-[300px] group relative space-y-4 text-white">
+      <figure className="group-hover:opacity-90">
         <Image
+          className="w-full rounded-lg aspect-square"
           src={room.thumbnail || "/placeholder.svg"}
+          width={300}
+          height={500}
           alt={room.name}
-          fill
-          className="object-cover"
         />
-        {/* <button
-                        className={`absolute top-2 right-2 p-1 rounded-full ${
-                          room.starred
-                            ? "text-yellow-400 bg-black/20"
-                            : "text-gray-400 bg-black/10"
-                        }`}
-                        onClick={() => toggleStar(room.id)}
-                      >
-                        <Star
-                          className="h-5 w-5"
-                          fill={room.starred ? "currentColor" : "none"}
-                        />
-                      </button> */}
-      </div>
-      <CardHeader className="p-4 pb-0">
-        <div className="flex justify-between items-start">
-          <CardTitle className="text-lg">{room.name}</CardTitle>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <MoreHorizontal className="h-4 w-4" />
-                <span className="sr-only">Open menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>Rename</DropdownMenuItem>
-              <DropdownMenuItem>Duplicate</DropdownMenuItem>
-              <DropdownMenuItem>Share</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-destructive">
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+      </figure>
+      <div className="flex justify-between items-center">
+        <div>
+          <h3 className="text-lg text-black dark:text-white">{room.name}</h3>
         </div>
-        <CardDescription className="flex items-center gap-1 mt-1">
-          <Clock className="h-3 w-3" />
-          <span>{formatDate(room.updatedAt)}</span>
-        </CardDescription>
-      </CardHeader>
-      <CardFooter className="p-4 pt-2 flex justify-between">
-        {/* <div className="flex items-center gap-1">
-                        <Users className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-xs text-muted-foreground">
-                          {room.collaborators} collaborators
-                        </span>
-                      </div> */}
+
+        <div>
+          <h3 className="text-xs text-gray-500">
+            <span>{formatDate(room.updatedAt)}</span>
+          </h3>
+        </div>
+      </div>
+
+      <div className="flex gap-4">
         <Button
-          size="sm"
-          className="gap-1"
-          onClick={() => {
-            router.push(`/canvas/${room.id}`);
-          }}
+          variant="outline"
+          className="w-full cursor-pointer text-black dark:text-white"
+          onClick={() => router.push(`/canvas/${room.id}`)}
         >
-          <ArrowUpRight className="h-3 w-3" />
-          Open
+          <ArrowUpRight className="size-4 me-1" /> Open
         </Button>
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
 };

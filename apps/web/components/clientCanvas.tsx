@@ -1,5 +1,4 @@
 "use client";
-import { useSocket } from "@/hooks/useSocket";
 import { MainCanvas } from "./main-canvas";
 
 interface ClientcanvasProps {

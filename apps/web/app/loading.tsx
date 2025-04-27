@@ -1,14 +1,10 @@
-"use client"
-
-import { motion } from "framer-motion"
-import { Pen } from 'lucide-react'
-import { useTheme } from "next-themes"
-import { useEffect, useState } from "react"
+"use client";
+import { motion } from "framer-motion";
+import { Pen } from "lucide-react";
 
 export default function Loading() {
-
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background dark:bg-black">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background dark:bg-[#111111]">
       <div className="flex flex-col items-center justify-center gap-8">
         <motion.div
           className="flex items-center gap-3"
@@ -74,109 +70,8 @@ export default function Loading() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7, duration: 0.5 }}
-        >
-          <DrawingAnimation />
-          <p className="mt-8 text-muted-foreground dark:text-gray-400">Setting up your canvas...</p>
-        </motion.div>
+        ></motion.div>
       </div>
     </div>
-  )
-}
-
-function DrawingAnimation() {
-  const pathVariants = {
-    hidden: {
-      pathLength: 0,
-      opacity: 0,
-    },
-    visible: {
-      pathLength: 1,
-      opacity: 1,
-      transition: {
-        pathLength: { duration: 2, ease: "easeInOut", repeat: Infinity, repeatType: "loop", repeatDelay: 0.5 },
-        opacity: { duration: 0.5 },
-      },
-    },
-  }
-
-  return (
-    <div className="relative h-32 w-32">
-      <svg
-        viewBox="0 0 100 100"
-        className="h-full w-full"
-        xmlns="http://www.w3.org/2000/svg"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        {/* Drawing canvas outline */}
-        <motion.rect
-          x="10"
-          y="10"
-          width="80"
-          height="80"
-          rx="4"
-          fill="transparent"
-          stroke="currentColor"
-          strokeWidth="2"
-          className="text-muted-foreground dark:text-white"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-        />
-
-        {/* Animated drawing paths */}
-        <motion.path
-          d="M30 30 Q50 20, 70 30 T90 50"
-          fill="transparent"
-          stroke="currentColor"
-          strokeWidth="2"
-          className="text-primary dark:text-white"
-          variants={pathVariants}
-          initial="hidden"
-          animate="visible"
-        />
-        <motion.path
-          d="M20 50 Q40 70, 60 50 T80 70"
-          fill="transparent"
-          stroke="currentColor"
-          strokeWidth="2"
-          className="text-primary dark:text-white"
-          variants={pathVariants}
-          initial="hidden"
-          animate="visible"
-          transition={{ delay: 0.5 }}
-        />
-        <motion.path
-          d="M30 70 L70 30"
-          fill="transparent"
-          stroke="currentColor"
-          strokeWidth="2"
-          className="text-primary dark:text-white"
-          variants={pathVariants}
-          initial="hidden"
-          animate="visible"
-          transition={{ delay: 1 }}
-        />
-
-        {/* Animated cursor */}
-        <motion.circle
-          cx="50"
-          cy="50"
-          r="3"
-          fill="currentColor"
-          className="text-primary dark:text-white"
-          initial={{ x: 0, y: 0 }}
-          animate={{
-            x: [0, 20, -20, 0],
-            y: [0, -20, 20, 0],
-          }}
-          transition={{
-            duration: 4,
-            repeat: Infinity,
-            repeatType: "loop",
-          }}
-        />
-      </svg>
-    </div>
-  )
+  );
 }

@@ -1,8 +1,7 @@
-import { cookies } from "next/headers";
+import { getCookie } from "cookies-next/client";
 
-export const useAuthServer = async () => {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token");
+export const useAuthServer = () => {
+  const token = getCookie("token");
   const isloggedIn = token ? true : false;
 
   return {

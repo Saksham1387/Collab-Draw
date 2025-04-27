@@ -3,8 +3,8 @@ import { useAuthServer } from "@/hooks/useAuthServer";
 import { Brush } from "lucide-react";
 import { redirect } from "next/navigation";
 
-export default async function SignUp() {
-  const { isloggedIn } = await useAuthServer();
+export default function SignUp() {
+  const { isloggedIn } = useAuthServer();
   if (isloggedIn) {
     redirect("/dashboard");
   }
