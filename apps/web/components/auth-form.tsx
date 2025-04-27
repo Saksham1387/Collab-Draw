@@ -15,12 +15,14 @@ import Link from "next/link";
 import axios from "axios";
 import { httpUrl } from "@/lib/config";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface LoginFormProps extends React.ComponentPropsWithoutRef<"div"> {
   isSignIn: boolean;
 }
 
 export function AuthForm({ className, isSignIn, ...props }: LoginFormProps) {
+  const router = useRouter();
   const form = useForm({
     defaultValues: {
       email: "",
@@ -33,11 +35,13 @@ export function AuthForm({ className, isSignIn, ...props }: LoginFormProps) {
         const res = await axios.post(`${httpUrl}/signin`, {
           email: value.email,
           password: value.password,
+        },{
+          withCredentials:true
         });
 
-        if (res.status === 200) {
-          localStorage.setItem("token", res.data.token);
+        if (res.status === 200 && res.data.message !== "Incorrect Inputs" || res.data.message !== "Wrong password") {
           toast("Successfully SignedIn");
+          router.push("/dashboard")
           return;
         }
 
@@ -49,6 +53,8 @@ export function AuthForm({ className, isSignIn, ...props }: LoginFormProps) {
         email: value.email,
         password: value.password,
         username: value.username,
+      },{
+        withCredentials:true
       });
 
       if (res.status === 200) {

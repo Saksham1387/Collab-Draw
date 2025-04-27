@@ -18,6 +18,8 @@ wss.on("connection", function connection(ws, request) {
     return;
   }
 
+  console.log("connection here")
+
   const queryParams = new URLSearchParams(url.split("?")[1]);
   const token = queryParams.get("token") ?? "";
 
@@ -33,6 +35,8 @@ wss.on("connection", function connection(ws, request) {
     ws,
     rooms: [],
   });
+
+
 
   ws.on("error", (e) => {
     console.log(e);
@@ -91,4 +95,11 @@ wss.on("connection", function connection(ws, request) {
       });
     }
   });
+
+
+
+  ws.on("close",() => {
+  console.log("connection closed")
+
+  })
 });

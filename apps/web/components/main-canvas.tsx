@@ -1,43 +1,87 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { initDraw } from "@/draw";
 import { useSocket } from "@/hooks/useSocket";
 import { Circle, Square } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useWindowSize } from "usehooks-ts";
+import { Draw } from "@/draw/draw";
+import Loading from "@/app/loading";
+
+export type Tool = "circle" | "rect" | "pencil";
 
 export const MainCanvas = ({ roomId }: { roomId: string }) => {
-  const { ws, loading } = useSocket();
-  const [selectedTool, setSelectedTool] = useState("rect");
+  const { ws, loading: socketLoading } = useSocket();
+  const [selectedTool, setSelectedTool] = useState<Tool>("rect");
   const { width = window.innerWidth, height = window.innerHeight } = useWindowSize();
+  const [draw, setDraw] = useState<Draw>();
   const canvasRef = useRef(null);
+  const [loading, setLoading] = useState(true);
+
+  console.log(ws);
+  
   useEffect(() => {
-    ws?.send(
+    draw?.setTool(selectedTool);
+  }, [selectedTool, draw]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Initialize Draw instance when socket and canvas are ready
+  useEffect(() => {
+    if (!ws || loading || !canvasRef.current) return;
+
+    ws.send(
       JSON.stringify({
         type: "join_room",
         roomId,
       })
     );
-    if (canvasRef.current) {
-      if (ws) {
-        initDraw(canvasRef.current, roomId, ws!, selectedTool);
-      }
-    }
-  }, [canvasRef, ws, roomId, selectedTool]);
+
+    const d = new Draw(canvasRef.current, ws, roomId);
+    setDraw(d);
+
+    return () => {
+      d.destroy();
+    };
+  }, [canvasRef, ws, loading, roomId]);
+
+  // Handle window resize and reinitialize the canvas
+  useEffect(() => {
+    if (!ws || loading || !canvasRef.current || !draw) return;
+    
+    // Destroy the previous instance and create a new one with updated dimensions
+    draw.destroy();
+    const newDraw = new Draw(canvasRef.current, ws, roomId);
+    setDraw(newDraw);
+    newDraw.setTool(selectedTool);
+    
+    return () => {
+      newDraw.destroy();
+    };
+  }, [width, height]);
 
   const tools = [
     { id: "rect", icon: Square, label: "Rectangle" },
     { id: "circle", icon: Circle, label: "Circle" },
   ];
 
+  if (loading || socketLoading) {
+    return <Loading />;
+  }
+
   return (
-    <div className="overflow-hidden">
+    <div className="overflow-hidden bg-[#111111]">
       {/* Canvas */}
       <canvas
         ref={canvasRef}
-        width={window.innerWidth}
-        height={window.innerHeight}
-        className=" bg-white"
+        width={width}
+        height={height}
+        className="bg-[#111111]"
       ></canvas>
 
       {/* Toolbar positioned at the top center */}
@@ -52,7 +96,7 @@ export const MainCanvas = ({ roomId }: { roomId: string }) => {
                   ? "bg-indigo-600 text-white shadow-md"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               )}
-              onClick={() => setSelectedTool(tool.id)}
+              onClick={() => setSelectedTool(tool.id as Tool)}
               title={tool.label}
               aria-label={tool.label}
             >
@@ -61,6 +105,9 @@ export const MainCanvas = ({ roomId }: { roomId: string }) => {
           ))}
         </div>
       </div>
+
+
+      
     </div>
   );
 };
