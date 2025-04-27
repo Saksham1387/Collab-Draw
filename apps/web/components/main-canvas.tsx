@@ -1,24 +1,33 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useSocket } from "@/hooks/useSocket";
-import { Circle, Square } from "lucide-react";
+import {
+  ArrowLeftToLine,
+  Circle,
+  Minus,
+  Pencil,
+  Share,
+  Square,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useWindowSize } from "usehooks-ts";
 import { Draw } from "@/draw/draw";
 import Loading from "@/app/loading";
+import { Button } from "./ui/button";
+import { useRouter } from "next/navigation";
 
-export type Tool = "circle" | "rect" | "pencil";
+export type Tool = "circle" | "rect" | "pencil" | "straight-line";
 
 export const MainCanvas = ({ roomId }: { roomId: string }) => {
   const { ws, loading: socketLoading } = useSocket();
   const [selectedTool, setSelectedTool] = useState<Tool>("rect");
-  const { width = window.innerWidth, height = window.innerHeight } = useWindowSize();
+  const { width = window.innerWidth, height = window.innerHeight } =
+    useWindowSize();
   const [draw, setDraw] = useState<Draw>();
   const canvasRef = useRef(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
-  console.log(ws);
-  
   useEffect(() => {
     draw?.setTool(selectedTool);
   }, [selectedTool, draw]);
@@ -31,7 +40,6 @@ export const MainCanvas = ({ roomId }: { roomId: string }) => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Initialize Draw instance when socket and canvas are ready
   useEffect(() => {
     if (!ws || loading || !canvasRef.current) return;
 
@@ -50,16 +58,14 @@ export const MainCanvas = ({ roomId }: { roomId: string }) => {
     };
   }, [canvasRef, ws, loading, roomId]);
 
-  // Handle window resize and reinitialize the canvas
   useEffect(() => {
     if (!ws || loading || !canvasRef.current || !draw) return;
-    
-    // Destroy the previous instance and create a new one with updated dimensions
+
     draw.destroy();
     const newDraw = new Draw(canvasRef.current, ws, roomId);
     setDraw(newDraw);
     newDraw.setTool(selectedTool);
-    
+
     return () => {
       newDraw.destroy();
     };
@@ -68,6 +74,8 @@ export const MainCanvas = ({ roomId }: { roomId: string }) => {
   const tools = [
     { id: "rect", icon: Square, label: "Rectangle" },
     { id: "circle", icon: Circle, label: "Circle" },
+    { id: "pencil", icon: Pencil, label: "Pencil" },
+    { id: "straight-line", icon: Minus, label: "straight-line" },
   ];
 
   if (loading || socketLoading) {
@@ -75,8 +83,7 @@ export const MainCanvas = ({ roomId }: { roomId: string }) => {
   }
 
   return (
-    <div className="overflow-hidden bg-[#111111]">
-      {/* Canvas */}
+    <div className="overflow-hidden bg-[#111111] relative">
       <canvas
         ref={canvasRef}
         width={width}
@@ -84,7 +91,18 @@ export const MainCanvas = ({ roomId }: { roomId: string }) => {
         className="bg-[#111111]"
       ></canvas>
 
-      {/* Toolbar positioned at the top center */}
+      <div className="absolute top-4 left-4 z-20">
+        <Button
+          className="flex items-center gap-2 bg-indigo-500 text-white"
+          onClick={() => {
+            router.push("/dashboard");
+          }}
+        >
+          <ArrowLeftToLine className="w-4 h-4" />
+          <span>Back to dashboard</span>
+        </Button>
+      </div>
+
       <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
         <div className="flex items-center space-x-1 bg-white rounded-lg shadow-lg p-1">
           {tools.map((tool) => (
@@ -93,7 +111,7 @@ export const MainCanvas = ({ roomId }: { roomId: string }) => {
               className={cn(
                 "p-2 rounded-md transition-all focus:outline-none",
                 selectedTool === tool.id
-                  ? "bg-indigo-600 text-white shadow-md"
+                  ? "bg-indigo-500 text-white shadow-md"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               )}
               onClick={() => setSelectedTool(tool.id as Tool)}
@@ -103,11 +121,19 @@ export const MainCanvas = ({ roomId }: { roomId: string }) => {
               <tool.icon className="w-5 h-5" />
             </button>
           ))}
+
+          <div className="border-l-2 border-black">
+            <div className="pl-2">
+              <button className="text-white p-2 rounded-lg bg-indigo-500 pl-2 cursor-pointer">
+                <div className="flex flex-row gap-3 items-center justify-center">
+                  Share
+                  <Share className="w-6 h-5" />
+                </div>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
-
-
-      
     </div>
   );
 };
