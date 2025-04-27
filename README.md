@@ -1,7 +1,7 @@
 
 ![Collab Draw Banner](https://fuchsia-legal-roundworm-794.mypinata.cloud/ipfs/bafybeicc2375kytalzb32octq454qdl2cbop7r2cchrmn6r27euupel4zq)
 
-# ✏️ Collab Draw
+# Collab Draw
 
 
 **Collab Draw** is an open-source collaborative drawing tool inspired by Excalidraw.  
@@ -90,14 +90,9 @@ If you'd like to contribute:
 
 ---
 
-## 📄 License
-
-This project is licensed under the [MIT License](LICENSE).
-
----
 
 ## 🙌 Acknowledgements
 
 - Inspired by the amazing [Excalidraw](https://excalidraw.com/)
-- Built with ❤️ by 
-```
+- Built with ❤️ by [Me](https://x.com/Saksham37718116)
+
