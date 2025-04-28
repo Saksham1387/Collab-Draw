@@ -6,6 +6,7 @@ import { JWT_SECRET } from "common/config";
 import { CreateRoomSchema, CreateUserSchema, SigninSchema } from "common/types";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import { AvatarGenerator } from "random-avatar-generator";
 
 const app = express();
 app.use(cookieParser());
@@ -16,6 +17,7 @@ app.use(
     credentials: true,
   })
 );
+const generator = new AvatarGenerator();
 
 app.post("/signup", async (req, res): Promise<void> => {
   const data = CreateUserSchema.safeParse(req.body);
@@ -25,11 +27,12 @@ app.post("/signup", async (req, res): Promise<void> => {
     });
     return;
   }
-
+  const image = generator.generateRandomAvatar();
   const user = await prisma.user.create({
     data: {
       email: data.data.email,
       password: data.data.password,
+      photo: image,
     },
   });
 
@@ -37,9 +40,7 @@ app.post("/signup", async (req, res): Promise<void> => {
 });
 
 app.post("/signin", async (req, res) => {
-  console.log(req.body);
   const data = SigninSchema.safeParse(req.body);
-  console.log(data);
   if (!data.success) {
     res.json({
       message: "Incorrect Inputs",
@@ -54,15 +55,17 @@ app.post("/signin", async (req, res) => {
   });
 
   if (data.data.password !== user?.password) {
-    res.json({
+    res.sendStatus(401).json({
       message: "Wrong password",
     });
     return;
   }
   if (!user) {
-    res.json({
-      message: "user does not exsist",
-    });
+    res
+      .json({
+        message: "user does not exsist",
+      })
+      .sendStatus(405);
     return;
   }
   const token = jwt.sign(
@@ -78,7 +81,7 @@ app.post("/signin", async (req, res) => {
     .json({ message: "Login Succesfull" });
 });
 
-app.get("/dashboard", async (req, res) => {
+app.get("/dashboard", middleware, async (req, res) => {
   const rooms = await prisma.room.findMany({
     where: {
       adminId: req.userId,
@@ -116,19 +119,16 @@ app.post("/logout", async (req, res) => {
 });
 
 app.get("/user", middleware, async (req, res) => {
-  console.log(req.userId);
   const user = await prisma.user.findFirst({
     where: {
       id: req.userId,
     },
   });
 
-  console.log(user);
   res.json(user).sendStatus(200);
 });
 
 app.post("/room", middleware, async (req, res) => {
-  console.log("here");
   const parsedData = CreateRoomSchema.safeParse(req.body);
   if (!parsedData.success) {
     res.json({

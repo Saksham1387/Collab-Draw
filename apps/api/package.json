@@ -23,6 +23,7 @@
     "db": "*",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
+    "random-avatar-generator": "^2.0.0",
     "zod": "^3.24.2"
   }
 }

@@ -5,7 +5,7 @@
   "devDependencies": {
     "@types/bun": "latest",
     "db": "*",
-    "common":"*"
+    "common": "*"
   },
   "scripts": {
     "start": "bun run src/index.ts",
@@ -13,5 +13,8 @@
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "redis": "^4.7.0"
   }
 }

@@ -1,5 +1,5 @@
 import { JWT_SECRET } from "common/config";
-import jwt, { type JwtPayload } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 
 export const verifyUser = (token: string): string | null => {
   try {
@@ -17,5 +17,4 @@ export const verifyUser = (token: string): string | null => {
   } catch (e) {
     return null;
   }
-  return null;
 };

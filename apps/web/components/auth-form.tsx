@@ -31,50 +31,52 @@ export function AuthForm({ className, isSignIn, ...props }: LoginFormProps) {
     },
 
     onSubmit: async ({ value }) => {
-      if (isSignIn) {
-        const res = await axios.post(
-          `${httpUrl}/signin`,
-          {
-            email: value.email,
-            password: value.password,
-          },
-          {
-            withCredentials: true,
-          }
-        );
+      try {
+        let endpoint = isSignIn ? "signin" : "signup";
+        let payload = isSignIn
+          ? {
+              email: value.email,
+              password: value.password,
+            }
+          : {
+              email: value.email,
+              password: value.password,
+              username: value.username,
+            };
 
-        if (
-          (res.status === 200 && res.data.message !== "Incorrect Inputs") ||
-          res.data.message !== "Wrong password"
-        ) {
-          toast("Successfully SignedIn");
-          router.push("/dashboard");
+        const res = await axios.post(`${httpUrl}/${endpoint}`, payload, {
+          withCredentials: true,
+        });
+
+        if (res.status === 200) {
+          toast(`Successfully ${isSignIn ? "Signed In" : "Signed Up"}`);
+
+          if (isSignIn) {
+            router.push("/dashboard");
+          }
+          return;
+        } else if (res.status === 401 && isSignIn) {
+          toast("Wrong Credentials");
           return;
         }
 
-        toast("Some Error Occured");
-        return;
-      }
+        toast("Some Error Occurred");
+        console.log(res.data);
+      } catch (error) {
+        console.error(error);
 
-      const res = await axios.post(
-        `${httpUrl}/signup`,
-        {
-          email: value.email,
-          password: value.password,
-          username: value.username,
-        },
-        {
-          withCredentials: true,
+        if (axios.isAxiosError(error) && error.response) {
+          if (error.response.status === 401 && isSignIn) {
+            toast("Wrong Credentials");
+          } else {
+            toast(
+              `Error: ${error.response.data?.message || "Some Error Occurred"}`
+            );
+          }
+        } else {
+          toast("Network Error: Please try again later");
         }
-      );
-
-      if (res.status === 200) {
-        toast("Successfully SignedUp");
-        return;
       }
-      console.log(res.data);
-
-      toast("Some Error Occured");
     },
   });
   return (
@@ -164,12 +166,21 @@ export function AuthForm({ className, isSignIn, ...props }: LoginFormProps) {
                   )}
                 </form.Subscribe>
               </div>
-              <div className="text-center text-sm">
-                Don&apos;t have an account?{" "}
-                <Link href="/signup" className="underline underline-offset-4">
-                  SignUp
-                </Link>
-              </div>
+              {isSignIn ? (
+                <div className="text-center text-sm">
+                  Don&apos;t have an account?{" "}
+                  <Link href="/signup" className="underline underline-offset-4">
+                    SignUp
+                  </Link>
+                </div>
+              ) : (
+                <div className="text-center text-sm">
+                  Already have an account?{" "}
+                  <Link href="/signin" className="underline underline-offset-4">
+                    SignIn
+                  </Link>
+                </div>
+              )}
             </div>
           </form>
         </CardContent>

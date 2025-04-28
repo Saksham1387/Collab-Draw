@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -32,20 +32,37 @@ export type Room = {
   adminId: string;
 };
 
-interface DashboardProps {
-  initalrooms: Room[];
-  totalRooms: number;
-  recentlyEditedRooms: Room[];
-}
-
-export default function Dashboard({
-  initalrooms,
-  totalRooms,
-  recentlyEditedRooms,
-}: DashboardProps) {
-  const [rooms, setRooms] = useState(initalrooms);
+export default function Dashboard() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [newRoomName, setNewRoomName] = useState("");
+  const [initalrooms, setInitialroooms] = useState<Room[]>();
+  const [totalRooms, setTotalRooms] = useState<number>();
+  const [recentlyEditedRooms, setRecentlyEditedRooms] = useState<Room[]>();
+  const [rooms, setRooms] = useState(initalrooms);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRooms = async () => {
+      try {
+        setIsLoading(true);
+        const res = await axios.get(`${httpUrl}/dashboard`, {
+          withCredentials: true,
+        });
+        const dashboard = res.data;
+
+        setInitialroooms(dashboard.rooms);
+        setRooms(dashboard.rooms);
+        setTotalRooms(dashboard.totalRooms);
+        setRecentlyEditedRooms(dashboard.recentlyEditedRooms);
+      } catch (err) {
+        toast("Failed to load dashboard data.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchRooms();
+  }, []);
 
   const handleCreateRoom = async () => {
     if (!newRoomName.trim()) return;
@@ -62,11 +79,11 @@ export default function Dashboard({
     );
 
     console.log(res.data.room);
-    console.log([res.data.room, ...rooms]);
+    console.log([res.data.room, ...rooms!]);
     if (res.status === 200) {
       setRooms((prevRooms) => {
         console.log("Adding new room to:", prevRooms);
-        return [res.data.room, ...prevRooms];
+        return [res.data.room, ...prevRooms!];
       });
 
       console.log("after the call", rooms);
@@ -131,10 +148,21 @@ export default function Dashboard({
           </Dialog>
         </div>
 
-        <SummaryCardSection
-          totalRooms={totalRooms}
-          recentActivityCount={recentlyEditedRooms.length}
-        />
+        {isLoading ? (
+          <div className="flex gap-4 px-10 mb-4">
+            {[...Array(3)].map((_, i) => (
+              <div
+                key={i}
+                className="w-full h-24 bg-muted rounded animate-pulse"
+              />
+            ))}
+          </div>
+        ) : (
+          <SummaryCardSection
+            totalRooms={totalRooms!}
+            recentActivityCount={recentlyEditedRooms?.length!}
+          />
+        )}
 
         <Tabs defaultValue="all" className="w-full px-10 pb-10">
           <TabsList className="mb-4">
@@ -143,7 +171,7 @@ export default function Dashboard({
           </TabsList>
 
           <TabsContent value="all" className="space-y-4">
-            {rooms.length === 0 ? (
+            {initalrooms?.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <div className="rounded-full bg-muted p-3 mb-4">
                   <Pen className="h-6 w-6 text-muted-foreground" />
@@ -159,16 +187,27 @@ export default function Dashboard({
               </div>
             ) : (
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                {rooms.map((room, index) => (
-                  <RoomCard key={index} room={room} />
-                ))}
+                {isLoading
+                  ? [...Array(4)].map((_, index) => (
+                      <div
+                        key={index}
+                        className="rounded-lg border p-4 space-y-2"
+                      >
+                        <div className="h-40 bg-muted rounded-md animate-pulse" />
+                        <div className="h-4 w-3/4 bg-muted rounded animate-pulse" />
+                        <div className="h-3 w-1/2 bg-muted rounded animate-pulse" />
+                      </div>
+                    ))
+                  : rooms?.map((room, index) => (
+                      <RoomCard key={index} room={room} />
+                    ))}
               </div>
             )}
           </TabsContent>
 
           <TabsContent value="recent" className="space-y-4">
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {recentlyEditedRooms.length === 0 ? (
+              {recentlyEditedRooms?.length === 0 ? (
                 <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
                   <div className="rounded-full bg-muted p-3 mb-4">
                     <Clock className="h-6 w-6 text-muted-foreground" />
@@ -181,7 +220,7 @@ export default function Dashboard({
                   </p>
                 </div>
               ) : (
-                recentlyEditedRooms.map((room, index) => (
+                recentlyEditedRooms?.map((room, index) => (
                   <RoomCard key={index} room={room} />
                 ))
               )}
