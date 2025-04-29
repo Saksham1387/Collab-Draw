@@ -14,13 +14,14 @@ datasource db {
 }
 
 model User {
-  id       String @id @default(uuid())
-  email    String
-  password String
-  name     String?
-  photo    String?
-  rooms    Room[]
-  chats    Chat[]
+  id          String        @id @default(uuid())
+  email       String
+  password    String
+  name        String?
+  photo       String?
+  rooms       Room[]
+  chats       Chat[]
+  resetTokens resetTokens[]
 }
 
 model Room {
@@ -29,10 +30,18 @@ model Room {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
   name      String
-  thumbnail String @default("https://fuchsia-legal-roundworm-794.mypinata.cloud/ipfs/bafkreiazrz2ujhogzy55d7brioqeth3t2i56yfv5o65wgtmot4e6vsqiwa")
+  thumbnail String   @default("https://fuchsia-legal-roundworm-794.mypinata.cloud/ipfs/bafkreiazrz2ujhogzy55d7brioqeth3t2i56yfv5o65wgtmot4e6vsqiwa")
   adminId   String
   chats     Chat[]
   admin     User     @relation(fields: [adminId], references: [id])
+}
+
+model resetTokens {
+  id          String   @id @default(uuid())
+  token       String
+  tokenExpiry DateTime
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
 }
 
 model Chat {

@@ -3,11 +3,22 @@ import jwt from "jsonwebtoken";
 import { middleware } from "./middleware";
 import { prisma } from "@repo/db/prisma";
 import { JWT_SECRET } from "common/config";
-import { CreateRoomSchema, CreateUserSchema, SigninSchema } from "common/types";
+import {
+  CreateRoomSchema,
+  CreateUserSchema,
+  ResetPasswordConfirmSchema,
+  ResetPasswordSchema,
+  SigninSchema,
+} from "common/types";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { AvatarGenerator } from "random-avatar-generator";
+import { Resend } from "resend";
+import { generateResetToken, getEmailTemplate } from "./utils";
+import { render } from "@react-email/render";
+import { password } from "bun";
 
+const resend = new Resend(process.env.RESEND_API_KEY);
 const app = express();
 app.use(cookieParser());
 app.use(express.json());
@@ -37,6 +48,92 @@ app.post("/signup", async (req, res): Promise<void> => {
   });
 
   res.json({ user, message: "Created user" });
+});
+
+app.post("/password/reset", async (req, res) => {
+  const data = ResetPasswordSchema.safeParse(req.body);
+  if (!data.success) {
+    res.json({
+      message: "Incorrect Inputs",
+    });
+    return;
+  }
+  const { email } = data.data;
+
+  const existingUser = await prisma.user.findFirst({
+    where: {
+      email: email,
+    },
+  });
+
+  if (existingUser) {
+    const { token, expires } = generateResetToken();
+
+    const resetToken = await prisma.resetTokens.create({
+      data: {
+        user: {
+          connect: {
+            id: req.userId,
+          },
+        },
+        token,
+        tokenExpiry: expires,
+      },
+    });
+    const link = `${process.env.PROD_URL || "http://localhost:3000"}/password-reset?token=${token}`;
+
+    const template = getEmailTemplate(existingUser.name!, link);
+    const { data, error } = await resend.emails.send({
+      from: "Acme <onboarding@resend.dev>",
+      to: [existingUser.email],
+      subject: "Password Reset",
+      html: template,
+    });
+
+    if (error) {
+      res.status(400).json({ error });
+      return;
+    }
+    res.json(data).sendStatus(200);
+    return;
+  }
+
+  res.sendStatus(401).json({
+    message: "Email not found",
+  });
+  return;
+});
+
+app.post("/password/reset/change", async (req, res) => {
+  const data = ResetPasswordConfirmSchema.safeParse(req.body);
+  if (!data.success) {
+    res.json({
+      message: "Incorrect Inputs",
+    });
+    return;
+  }
+
+  const existingToken = await prisma.resetTokens.findFirst({
+    where: {
+      userId: req.userId,
+      token: data.data.token,
+    },
+  });
+
+  if (existingToken) {
+    const user = await prisma.user.update({
+      where: {
+        id: req.userId,
+      },
+      data: {
+        password: data.data.password,
+      },
+    });
+
+    res.json(user).sendStatus(200);
+  }
+
+  res.json({ message: "Invalid Token" }).sendStatus(404);
 });
 
 app.post("/signin", async (req, res) => {
