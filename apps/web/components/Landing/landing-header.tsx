@@ -23,14 +23,16 @@ export const LandingHeader = () => {
   const router = useRouter();
 
   const handleLogOut = async () => {
-    const res = await axios.post(`${httpUrl}/logout`, {
+    const res = await axios.post(`${httpUrl}/auth/logout`, {
       withCredentials: true,
     });
     if (res.status === 200) {
       deleteCookie("token");
       router.push("/");
     }
-  };
+  }
+
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}

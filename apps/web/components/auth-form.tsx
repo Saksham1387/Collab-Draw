@@ -44,7 +44,7 @@ export function AuthForm({ className, isSignIn, ...props }: LoginFormProps) {
               username: value.username,
             };
 
-        const res = await axios.post(`${httpUrl}/${endpoint}`, payload, {
+        const res = await axios.post(`${httpUrl}/auth/${endpoint}`, payload, {
           withCredentials: true,
         });
 

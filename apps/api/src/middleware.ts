@@ -12,7 +12,7 @@ export const middleware = (req: Request, res: Response, next: NextFunction) => {
   }
   const decode = jwt.verify(token, JWT_SECRET);
   if (decode) {
-    //@ts-ignore
+    // @ts-ignore
     req.userId = decode.userId;
     next();
   } else {

@@ -23,7 +23,7 @@ export const DashboardHeader = () => {
   const router = useRouter();
 
   const handleLogOut = async () => {
-    const res = await axios.post(`${httpUrl}/logout`, {
+    const res = await axios.post(`${httpUrl}/auth/logout`, {
       withCredentials: true,
     });
     if (res.status === 200) {
