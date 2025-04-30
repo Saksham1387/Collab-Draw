@@ -38,18 +38,13 @@ It lets you **draw**, **collaborate in real-time**, and **build creative project
 
 2. **Install dependencies**
    ```bash
-   # Install frontend dependencies
-   cd frontend
-   npm install
-
-   # Install backend dependencies
-   cd ../backend
-   npm install
+   # Install dependencies
+   bun install
    ```
 
 3. **Configure Environment Variables**
    
-   Create a `.env` file in both `frontend` and `backend` directories.  
+   Create a `.env` file in /packages/db
    Example for the backend:
 
    ```bash
@@ -58,21 +53,16 @@ It lets you **draw**, **collaborate in real-time**, and **build creative project
 
 4. **Run the development servers**
 
-   - Start the backend
+   - Start the backend, run  the following command in the root folder 
      ```bash
-     cd backend
-     npm run dev
-     ```
-
-   - Start the frontend
-     ```bash
-     cd ../frontend
-     npm run dev
+     bun dev 
      ```
 
 5. **Access the app**
 
    Open your browser and navigate to `http://localhost:3000`
+   The WS server will run on port `http://localhost:8081`
+   The API server will run on port `http://localhost:3001`
 
 ---
 
