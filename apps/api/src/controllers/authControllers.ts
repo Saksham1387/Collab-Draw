@@ -4,7 +4,7 @@ import { CreateUserSchema, SigninSchema } from "common/types";
 import type { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { AvatarGenerator } from "random-avatar-generator";
-
+ 
 const generator = new AvatarGenerator();
 const signIn = async (req: Request, res: Response) => {
   const data = SigninSchema.safeParse(req.body);

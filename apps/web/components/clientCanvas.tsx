@@ -1,4 +1,3 @@
-"use client";
 import { MainCanvas } from "./main-canvas";
 
 interface ClientcanvasProps {

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useSocket } from "@/hooks/useSocket";
-import { ArrowLeftToLine, Radio, Users } from "lucide-react";
+import { ArrowLeftToLine, Dot, Radio, Users } from "lucide-react";
 import { useWindowSize } from "usehooks-ts";
 import { Draw } from "@/draw/draw";
 import Loading from "@/app/loading";
@@ -9,7 +9,7 @@ import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
 import { ToolBar } from "./Canvas/tool-bar";
 
-export type Tool = "circle" | "rect" | "pencil" | "straight-line";
+export type Tool = "circle" | "rect" | "pencil" | "straight-line" | "text";
 
 export const MainCanvas = ({ roomId }: { roomId: string }) => {
   const { ws, loading: socketLoading } = useSocket();
@@ -136,6 +136,7 @@ export const MainCanvas = ({ roomId }: { roomId: string }) => {
         </Button>
 
         <div className="bg-blue-500 px-4 py-2 rounded-lg flex items-center gap-2 text-white shadow-md transition-all hover:bg-blue-500/90 cursor-default">
+        <Radio className="text-green-800 w-5 h-5"/>
           <Users className="w-4 h-4 text-blue-200" />
           <span className="font-medium">{userCount}</span>
         </div>

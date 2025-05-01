@@ -2,6 +2,8 @@ import { prisma } from "db/prisma";
 import type { Request, Response } from "express";
 
 export const getDashboard = async (req: Request, res: Response) => {
+
+  console.log("Data Fetched")
   const rooms = await prisma.room.findMany({
     where: {
       adminId: req.userId,

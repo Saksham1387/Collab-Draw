@@ -1,4 +1,4 @@
-import { Circle, Link, Minus, Pencil, Share, Square } from "lucide-react";
+import { Circle, Link, Minus, Pencil, Share, Square, Type } from "lucide-react";
 import { Tool } from "../main-canvas";
 import { cn } from "@/lib/utils";
 import {
@@ -18,6 +18,7 @@ const tools = [
   { id: "circle", icon: Circle, label: "Circle" },
   { id: "pencil", icon: Pencil, label: "Pencil" },
   { id: "straight-line", icon: Minus, label: "straight-line" },
+  { id: "text", icon: Type, label: "text" },
 ];
 
 interface ToolBarProps {
