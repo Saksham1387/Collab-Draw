@@ -7,7 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Logger is a middleware that logs information about each HTTP request
 func Logger() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Start timer
